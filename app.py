@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime
+from flask import Flask, request, jsonify
+from datetime import datetime, date  # ✅ Correct import
 
 app = Flask(__name__)
 
 @app.route('/')
-def index():
-    return render_template("index.html")
+def home():
+    return "Age Calculator API is running!"
 
 @app.route('/calculate_age', methods=['POST'])
 def calculate_age():
@@ -25,7 +25,6 @@ def calculate_age():
 
     except ValueError:
         return jsonify({"error": "Invalid date format"}), 400
-
 
 if __name__ == "__main__":
     app.run(debug=True)
