@@ -1,43 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Calculator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h2>Age Calculator</h2>
-        <label for="dob">Enter Your Date of Birth:</label>
-        <input type="date" id="dob">
-        <button onclick="calculateAge()">Calculate Age</button>
-        <p id="result"></p>
-    </div>
-
-    <script>
-        function calculateAge() {
-            let dob = document.getElementById("dob").value;
-            if (!dob) {
-                alert("Please enter your date of birth!");
-                return;
+<script>
+    document.getElementById("ageForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+    
+        let birthdate = document.getElementById("birthdate").value;
+        fetch("/calculate_age", {
+            method: "POST",
+            body: new URLSearchParams({ birthdate: birthdate }),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById("ageResult").innerHTML = `<p style="color: red;">${data.error}</p>`;
+            } else {
+                document.getElementById("ageResult").innerHTML = `
+                    <h3>Your Age:</h3>
+                    <p><strong>${data.years}</strong> years, <strong>${data.months}</strong> months, <strong>${data.days}</strong> days</p>
+                    <p id="realTimeClock"></p>
+                `;
+                startRealTimeClock();
             }
-
-            fetch('/calculate_age', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dob: dob })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.age !== undefined) {
-                    document.getElementById("result").innerText = "Your age is " + data.age + " years.";
-                } else {
-                    document.getElementById("result").innerText = "Error: " + data.error;
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
+        });
+    });
+    
+    function startRealTimeClock() {
+        setInterval(() => {
+            let now = new Date();
+            document.getElementById("realTimeClock").innerHTML = `
+                ${now.getHours()}h ${now.getMinutes()}m ${now.getSeconds()}s ${now.getMilliseconds()}ms
+            `;
+        }, 50);  // Update every 50ms
+    }
     </script>
-</body>
-</html>
+    
