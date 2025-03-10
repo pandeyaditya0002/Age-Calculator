@@ -10,20 +10,30 @@ def index():
 @app.route('/calculate_age', methods=['POST'])
 def calculate_age():
     try:
-        birth_date_str = request.form['birthdate']
-        birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
+        birthdate_str = request.form.get("birthdate")
+        birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d").date()
         today = date.today()
 
-        # Calculate difference
-        age_days = (today - birth_date).days
-        years = age_days // 365
-        months = (age_days % 365) // 30  # Approximate month count
-        days = (age_days % 365) % 30  # Remaining days
+        # Calculate age (years, months, days)
+        years = today.year - birthdate.year
+        months = today.month - birthdate.month
+        days = today.day - birthdate.day
 
-        return jsonify({"years": years, "months": months, "days": days})
+        # Adjust for negative months/days
+        if days < 0:
+            months -= 1
+            days += (date(today.year, today.month, 1) - date(today.year, today.month - 1, 1)).days
+        if months < 0:
+            years -= 1
+            months += 12
 
+        return jsonify({
+            "years": years,
+            "months": months,
+            "days": days
+        })
     except Exception as e:
-        return jsonify({"error": "Invalid Date Format"}), 400
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

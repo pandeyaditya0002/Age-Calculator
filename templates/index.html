@@ -1,35 +1,24 @@
-<script>
-    document.getElementById("ageForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-    
-        let birthdate = document.getElementById("birthdate").value;
-        fetch("/calculate_age", {
-            method: "POST",
-            body: new URLSearchParams({ birthdate: birthdate }),
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById("ageResult").innerHTML = `<p style="color: red;">${data.error}</p>`;
-            } else {
-                document.getElementById("ageResult").innerHTML = `
-                    <h3>Your Age:</h3>
-                    <p><strong>${data.years}</strong> years, <strong>${data.months}</strong> months, <strong>${data.days}</strong> days</p>
-                    <p id="realTimeClock"></p>
-                `;
-                startRealTimeClock();
-            }
-        });
-    });
-    
-    function startRealTimeClock() {
-        setInterval(() => {
-            let now = new Date();
-            document.getElementById("realTimeClock").innerHTML = `
-                ${now.getHours()}h ${now.getMinutes()}m ${now.getSeconds()}s ${now.getMilliseconds()}ms
-            `;
-        }, 50);  // Update every 50ms
-    }
-    </script>
-    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Age Calculator</h1>
+        <label for="birthdate">Enter your birthdate:</label>
+        <input type="date" id="birthdate">
+        <button id="calculate-btn">Calculate Age</button>
+
+        
+        <p id="result">Your age will appear here.</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
