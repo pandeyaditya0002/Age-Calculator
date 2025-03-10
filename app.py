@@ -1,30 +1,27 @@
-from flask import Flask, request, jsonify
-from datetime import datetime, date  # ✅ Correct import
+from flask import Flask, render_template, request, jsonify
+from datetime import datetime
 
 app = Flask(__name__)
 
 @app.route('/')
-def home():
-    return "Age Calculator API is running!"
+def index():
+    return render_template('index.html')
 
 @app.route('/calculate_age', methods=['POST'])
 def calculate_age():
-    data = request.get_json()
-    dob_str = data.get("dob")  # Get date from request
-
-    if not dob_str:
-        return jsonify({"error": "Invalid date"}), 400
-
     try:
-        dob = datetime.strptime(dob_str, "%Y-%m-%d")
-        today = date.today()
-        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-        
-        print(f"Calculated Age: {age}")  # Debugging line
-        return jsonify({"age": age})  # Return JSON response
+        data = request.get_json()
+        dob_str = data.get("dob")
+        if not dob_str:
+            return jsonify({"error": "Date of birth is required"}), 400
 
-    except ValueError:
-        return jsonify({"error": "Invalid date format"}), 400
+        dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        today = datetime.today().date()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+        return jsonify({"age": age})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
