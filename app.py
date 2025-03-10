@@ -9,25 +9,23 @@ def index():
 
 @app.route('/calculate_age', methods=['POST'])
 def calculate_age():
+    data = request.get_json()
+    dob_str = data.get("dob")  # Get date from request
+
+    if not dob_str:
+        return jsonify({"error": "Invalid date"}), 400
+
     try:
-        dob_str = request.form.get("dob")
         dob = datetime.strptime(dob_str, "%Y-%m-%d")
-        today = datetime.today()
+        today = date.today()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         
-        years = today.year - dob.year
-        months = today.month - dob.month
-        days = today.day - dob.day
-        
-        if days < 0:
-            months -= 1
-            days += (today.replace(month=today.month - 1, day=1) - today.replace(day=1)).days
-        if months < 0:
-            years -= 1
-            months += 12
-        
-        return jsonify({"years": years, "months": months, "days": days})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+        print(f"Calculated Age: {age}")  # Debugging line
+        return jsonify({"age": age})  # Return JSON response
+
+    except ValueError:
+        return jsonify({"error": "Invalid date format"}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True)
